@@ -2,8 +2,8 @@ import torch
 from torch import nn
 from tqdm import tqdm
 from . import models, loader
-from sklearn.model_selection import RepeatedKFold
-kf = RepeatedKFold(n_splits=32, shuffle=True, random_state=42)
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=32, shuffle=True, random_state=42)
 
 model = models.BasicCNN()
 assert torch.cuda.is_available()
@@ -26,7 +26,7 @@ def train_epoch(train_idx) -> tuple[int, int]:
         output = model(x)
         batch_loss = criterion(output, y)
         total_loss += batch_loss
-
+ 
         acc = (output.argmax(dim=1) == y).sum()
         total_acc += acc
 

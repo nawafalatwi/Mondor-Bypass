@@ -15,8 +15,8 @@ namespace gen
     {
         static void Main(string[] args)
         {
-            for (int i=0; i<65536; i++){
-                CaptchaImage cac = new CaptchaImage();
+            CaptchaImage cac = new CaptchaImage();
+            for (int i=0; i<(1<<17); i++){
                 cac.Width = 105;
                 cac.Height = 32;
                 cac.TextLength = 6;

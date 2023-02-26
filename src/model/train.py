@@ -1,8 +1,10 @@
 import torch
 from torch import nn
-import numpy as np
 from tqdm import tqdm
-from . import models, data
+from . import models, loader
+from sklearn.model_selection import KFold
+kf = KFold(n_splits=32, shuffle=True, random_state=42)
+
 
 model = models.BasicCNN()
 assert torch.cuda.is_available()
@@ -14,11 +16,13 @@ optimizer = torch.optim.Adam(model.parameters())
 model = model.to(device)
 criterion = criterion.to(device)
 
-def train_epoch() -> tuple[int, int]:
+def train_epoch(train_idx) -> tuple[int, int]:
     total_loss = 0
     total_acc = 0
-    for x, y in tqdm(data.get_dataloader(4096)):
-        x = x.to(device, dtype=np.float32)
+    for x, y in tqdm(loader.get_dataloader(train_idx)):
+        print(x.shape)
+        x = x.to(device, dtype=torch.float)
+        y = y.type(torch.LongTensor)
         y = y.to(device)
 
         output = model(x)
@@ -27,19 +31,20 @@ def train_epoch() -> tuple[int, int]:
 
         acc = (output.argmax(dim=1) == y).sum()
         total_acc += acc
-        
+
         optimizer.zero_grad()
         batch_loss.backward()
         optimizer.step()
 
     return total_loss, total_acc
 
-def test_epoch() -> tuple[int, int]:
+def test_epoch(test_idx) -> tuple[int, int]:
     total_loss = 0
     total_acc = 0
     with torch.no_grad():
-        for x, y in tqdm(data.get_dataloader(64)):
-            x = x.to(device, dtype=np.float32)
+        for x, y in tqdm(loader.get_dataloader(test_idx)):
+            x = x.to(device, dtype=torch.float)
+            y = y.type(torch.LongTensor)
             y = y.to(device)
 
             output = model(x)
@@ -49,37 +54,21 @@ def test_epoch() -> tuple[int, int]:
             acc = (output.argmax(dim=1) == y).sum()
             total_acc += acc
             
-            optimizer.zero_grad()
-            batch_loss.backward()
-            optimizer.step()
     return total_loss, total_acc
 
 def train():
     min_loss = 10**15
-    for epoch in range(100000000000000000000):
-        total_loss_train, total_acc_train = train_epoch()
-        total_loss_tests, total_acc_tests = test_epoch()
+    for fold, (train_idx, test_idx) in enumerate(kf.split(loader.datay)):
+        total_loss_train, total_acc_train = train_epoch(train_idx)
+        total_loss_tests, total_acc_tests = test_epoch(test_idx)
         print(
-            f'''Epochs: {epoch+1} 
-            | Train Loss: {total_loss_train / 4096:.3f}
-            | Train Accuracy: {total_acc_train / 4096:.3f}
-            | Test Loss: {total_loss_tests / 64:.3f}
-            | Test Accuracy: {total_acc_tests / 64:.3f}'''
+            f'''Epochs: {fold+1}
+            | Train Loss: {total_loss_train / len(train_idx):.3f}
+            | Train Accuracy: {total_acc_train / len(train_idx):.3f}
+            | Test Loss: {total_loss_tests / len(test_idx):.3f}
+            | Test Accuracy: {total_acc_tests / len(test_idx):.3f}'''
         )
         if min_loss > total_loss_tests / 64:
             min_loss = total_loss_tests / 64
             torch.save(model.state_dict(), "CNN.pt")
             print(f"Saved! Improved to {min_loss}")
-
-def inference_init():
-    # model.load_state_dict("CNN.pt")
-    pass
-
-def inference(image: np.array) -> str:
-    return "LMAO!!"
-    pass
-
-if __name__ == '__main__':
-    train()
-else:
-    inference_init()

@@ -1,2 +1,4 @@
+from src.model import train
 from src.interact import main
-main.start()
+train.train()
+# main.start()

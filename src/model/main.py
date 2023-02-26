@@ -33,7 +33,6 @@ def train() -> tuple[int, int]:
         optimizer.step()
 
     return total_loss, total_acc
-
 def test() -> tuple[int, int]:
     total_loss = 0
     total_acc = 0

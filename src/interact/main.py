@@ -2,8 +2,10 @@ import time
 import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium.webdriver.edge.service import Service as EdgeService
+
 from ..model import infer
 
 def get_random_candidates() -> list[str]:
@@ -18,13 +20,18 @@ def get_random_candidates() -> list[str]:
 def start():
     driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
 
+    driver.get("http://tainangtrevietnam.vn/index.html")
+    driver.execute_cdp_cmd('Network.setBlockedURLs', {"urls": ["www.google-analytics.com", "www.googletagmanager.com"]})
+    driver.execute_cdp_cmd('Network.enable', {})
+
     for i in range(100):
-        driver.get("http://tainangtrevietnam.vn/index.html")
         time.sleep(5)
+        for xpath in get_random_candidates():
+            check_box = driver.find_element(by = By.XPATH, value = xpath)
+            check_box.click()
 
         captcha_image = driver.find_element(by = By.XPATH,
             value = r'//*[@id="thongtin"]/div/div[3]/div[2]/div/img')
-
         image = captcha_image.screenshot_as_png
         result = infer.inference(image)
 
@@ -32,14 +39,10 @@ def start():
             value = r'//input[@class="inputVote"]')
         text_box.send_keys(result)
 
-        for xpath in get_random_candidates():
-            check_box = driver.find_element(by = By.XPATH, value = xpath)
-            check_box.click()
-
         submit_button = driver.find_element(by = By.XPATH,
             value = r'//*[@id="ctl00_webPartManager_wp793523384_wp1892398315_btnSubmit1"]')
         submit_button.click()
-        
+
         alert = driver.switch_to.alert
         print(f"Result: {alert.text}")
         if "2022" not in alert.text:

@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 import numpy as np
-from tqdm import tqdm
 from . import models
 from ..data import data
 
@@ -19,8 +18,8 @@ criterion = criterion.to(device)
 def inference(image: bytes):
     result = []
     for img, _ in data.split_image(image, "AAAAAA"):
+        img = np.expand_dims(img, 0)
         img = torch.tensor(img).to(device, dtype=torch.float)
-        print(img.shape)
-        idx = model(img).argmax(dim=1)
+        idx = int(model(img).argmax(dim=1).cpu())
         result.append(data.decode_result(idx))
-    return str(result)
+    return "".join(reversed(result))    

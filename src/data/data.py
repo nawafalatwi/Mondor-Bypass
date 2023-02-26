@@ -11,7 +11,7 @@ def encode_result(c: str):
     
 def decode_result(c: int):
     if c < 10:
-        return c
+        return str(c)
     else:
         return chr(c - 10 + ord('A'))
 

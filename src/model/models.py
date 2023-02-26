@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-from torchvision import transforms
 
 # Model that receives 32x32 images
 class BasicCNN(nn.Module):

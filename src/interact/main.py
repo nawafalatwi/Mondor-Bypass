@@ -1,7 +1,5 @@
-import time, io
+import time
 import random
-import numpy as np
-from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.service import Service as EdgeService
@@ -20,13 +18,15 @@ def get_random_candidates() -> list[str]:
 def start():
     driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
 
-    for _ in range(100):
+    for i in range(100):
         driver.get("http://tainangtrevietnam.vn/index.html")
+        time.sleep(5)
 
         captcha_image = driver.find_element(by = By.XPATH,
             value = r'//*[@id="thongtin"]/div/div[3]/div[2]/div/img')
 
-        result = infer.inference(captcha_image.screenshot_as_png)
+        image = captcha_image.screenshot_as_png
+        result = infer.inference(image)
 
         text_box = driver.find_element(by = By.XPATH,
             value = r'//input[@class="inputVote"]')
@@ -36,12 +36,14 @@ def start():
             check_box = driver.find_element(by = By.XPATH, value = xpath)
             check_box.click()
 
-        time.sleep(10)
-
         submit_button = driver.find_element(by = By.XPATH,
             value = r'//*[@id="ctl00_webPartManager_wp793523384_wp1892398315_btnSubmit1"]')
         submit_button.click()
         
         alert = driver.switch_to.alert
         print(f"Result: {alert.text}")
+        if "2022" not in alert.text:
+            with open(f"fail_log/{result}_FAIL_{i}.png", "wb") as file:
+                file.write(image)
         alert.accept()
+        driver.delete_all_cookies()

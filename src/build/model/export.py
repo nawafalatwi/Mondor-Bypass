@@ -15,12 +15,10 @@ def export_model() -> torch.Tensor:
     model = models.BasicCNN()
     assert torch.cuda.is_available()
 
-    device = torch.device(type="cuda")
-
     model.load_state_dict(torch.load("blob/CNN.pt"))
-    model = model.to(device)
+    model = model.to(models.device)
 
-    torch_input = model_input.to(device)
+    torch_input = model_input.to(models.device)
     torch_output = model(torch_input)
 
     print("Exporting")

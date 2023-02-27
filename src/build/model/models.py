@@ -1,6 +1,15 @@
 import torch
 from torch import nn
 
+device: torch.device
+
+if torch.cuda.is_available():
+    print("CUDA is available!")
+    device = torch.device(type="cuda")
+else:
+    print("CUDA is not available!")
+    device = torch.device(type="cpu")
+
 # Model that receives 32x32 images
 class BasicCNN(nn.Module):
     def __init__(self):

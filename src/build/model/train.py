@@ -6,22 +6,20 @@ from sklearn.model_selection import KFold
 kf = KFold(n_splits=32, shuffle=True, random_state=42)
 
 model = models.BasicCNN()
-assert torch.cuda.is_available()
 
-device = torch.device(type="cuda")
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters())
 
-model = model.to(device)
-criterion = criterion.to(device)
+model = model.to(models.device)
+criterion = criterion.to(models.device)
 
 def train_epoch(train_idx) -> tuple[int, int]:
     total_loss = 0
     total_acc = 0
     for x, y in tqdm(loader.get_dataloader(train_idx)):
-        x = x.to(device, dtype=torch.float)
+        x = x.to(models.device, dtype=torch.float)
         y = y.type(torch.LongTensor)
-        y = y.to(device)
+        y = y.to(models.device)
 
         output = model(x)
         batch_loss = criterion(output, y)
@@ -41,9 +39,9 @@ def test_epoch(test_idx) -> tuple[int, int]:
     total_acc = 0
     with torch.no_grad():
         for x, y in tqdm(loader.get_dataloader(test_idx)):
-            x = x.to(device, dtype=torch.float)
+            x = x.to(models.device, dtype=torch.float)
             y = y.type(torch.LongTensor)
-            y = y.to(device)
+            y = y.to(models.device)
 
             output = model(x)
             batch_loss = criterion(output, y)

@@ -18,3 +18,6 @@ match sys.argv[1]:
         from src.deploy.model.infer_onnx import inference
         from src.deploy.interact import main
         main.start(inference)
+
+    case _:
+        print("Wrong argument")

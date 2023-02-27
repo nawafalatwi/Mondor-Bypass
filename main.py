@@ -11,13 +11,13 @@ match sys.argv[1]:
 
     case "torch_infer":
         from src.deploy.model.infer_torch import inference
-        from src.deploy.interact import main
-        main.start(inference)
+        from src.deploy.interact import inter
+        inter.start(inference)
 
     case "onnx_infer":
         from src.deploy.model.infer_onnx import inference
-        from src.deploy.interact import main
-        main.start(inference)
+        from src.deploy.interact import inter
+        inter.start(inference)
 
     case _:
         print("Wrong argument")

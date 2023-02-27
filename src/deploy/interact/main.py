@@ -17,7 +17,10 @@ def get_random_candidates() -> list[str]:
     return xpaths
 
 def start(infer: Callable[[bytes], str]) -> None:
-    driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
+    EdgeOptions = webdriver.EdgeOptions()
+    EdgeOptions.add_argument("--headless")
+    EdgeOptions.add_argument('log-level=3')
+    driver = webdriver.Edge(options=EdgeOptions, service=EdgeService(EdgeChromiumDriverManager().install()))
 
     driver.get("http://tainangtrevietnam.vn/index.html")
     driver.execute_cdp_cmd('Network.setBlockedURLs', {"urls": ["www.google-analytics.com", "www.googletagmanager.com"]})

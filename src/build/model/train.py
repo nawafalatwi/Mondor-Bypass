@@ -52,7 +52,7 @@ def test_epoch(test_idx) -> tuple[int, int]:
             
     return total_loss, total_acc
 
-def train():
+def train() -> None:
     min_loss = 10**15
     for fold, (train_idx, test_idx) in enumerate(kf.split(loader.datay)):
         total_loss_train, total_acc_train = train_epoch(train_idx)

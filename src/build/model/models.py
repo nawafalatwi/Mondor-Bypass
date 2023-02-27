@@ -38,7 +38,7 @@ class BasicCNN(nn.Module):
             nn.Linear(100, 36)
         )
     
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.convo1(x)
         x = self.convo2(x)
         x = self.average(x)

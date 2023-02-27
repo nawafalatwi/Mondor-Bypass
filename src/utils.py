@@ -2,13 +2,13 @@ import io
 import numpy as np
 from PIL import Image
 
-def encode_result(c: str):
+def encode_result(c: str) -> int:
     if str.isdigit(c):
         return ord(c) - ord('0')
     else:
         return ord(c) - ord('A') + 10
     
-def decode_result(c: int):
+def decode_result(c: int) -> str:
     if c < 10:
         return str(c)
     else:

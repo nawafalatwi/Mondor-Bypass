@@ -16,7 +16,7 @@ def get_random_candidates() -> list[str]:
     xpaths.append('//input[@value="179"]')
     return xpaths
 
-def start(infer: Callable[[bytes], str]):
+def start(infer: Callable[[bytes], str]) -> None:
     driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
 
     driver.get("http://tainangtrevietnam.vn/index.html")

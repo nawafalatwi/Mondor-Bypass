@@ -11,9 +11,8 @@ def to_numpy(tensor: torch.Tensor) -> np.ndarray:
     else:
         return tensor.cpu().numpy()
 
-def export_model() -> torch.Tensor:
+def export_model() -> np.ndarray:
     model = models.BasicCNN()
-    assert torch.cuda.is_available()
 
     model.load_state_dict(torch.load("blob/CNN.pt"))
     model = model.to(models.device)
@@ -36,7 +35,7 @@ def export_model() -> torch.Tensor:
     )
     return to_numpy(torch_output)
 
-def check_model():
+def check_model() -> np.ndarray:
     print("Performing checks")
 
     onnx_model = onnx.load("blob/CNN.onnx")
@@ -48,7 +47,7 @@ def check_model():
 
     return ort_output
 
-def run_export():
+def run_export() -> None:
     torch_output = export_model()
     ort_output = check_model()
     np.testing.assert_allclose(torch_output, ort_output[0], rtol=1e-3, atol=1e-5)

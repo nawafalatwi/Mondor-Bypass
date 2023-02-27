@@ -19,35 +19,34 @@ def start(infer: Callable[[bytes], str]) -> None:
     EdgeOptions = webdriver.EdgeOptions()
     EdgeOptions.add_argument("--headless")
     EdgeOptions.add_argument('log-level=3')
-    driver = webdriver.Edge(options=EdgeOptions, service=EdgeService(EdgeChromiumDriverManager().install()))
+    with webdriver.Edge(options=EdgeOptions, service=EdgeService(EdgeChromiumDriverManager().install())) as driver:
+        driver.get("http://tainangtrevietnam.vn/index.html")
+        driver.execute_cdp_cmd('Network.setBlockedURLs', {"urls": ["www.google-analytics.com", "www.googletagmanager.com"]})
+        driver.execute_cdp_cmd('Network.enable', {})
 
-    driver.get("http://tainangtrevietnam.vn/index.html")
-    driver.execute_cdp_cmd('Network.setBlockedURLs', {"urls": ["www.google-analytics.com", "www.googletagmanager.com"]})
-    driver.execute_cdp_cmd('Network.enable', {})
+        for i in range(100):
+            time.sleep(5)
+            driver.implicitly_wait(100000)
+            for xpath in get_random_candidates():
+                check_box = driver.find_element(by = By.XPATH, value = xpath)
+                check_box.click()
+            captcha_image = driver.find_element(by = By.XPATH,
+                value = r'//*[@id="thongtin"]/div/div[3]/div[2]/div/img')
+            image = captcha_image.screenshot_as_png
+            result = infer(image)
 
-    for i in range(100):
-        time.sleep(5)
-        for xpath in get_random_candidates():
-            check_box = driver.find_element(by = By.XPATH, value = xpath)
-            check_box.click()
+            text_box = driver.find_element(by = By.XPATH,
+                value = r'//input[@class="inputVote"]')
+            text_box.send_keys(result)
 
-        captcha_image = driver.find_element(by = By.XPATH,
-            value = r'//*[@id="thongtin"]/div/div[3]/div[2]/div/img')
-        image = captcha_image.screenshot_as_png
-        result = infer(image)
+            submit_button = driver.find_element(by = By.XPATH,
+                value = r'//*[@id="ctl00_webPartManager_wp793523384_wp1892398315_btnSubmit1"]')
+            submit_button.click()
 
-        text_box = driver.find_element(by = By.XPATH,
-            value = r'//input[@class="inputVote"]')
-        text_box.send_keys(result)
-
-        submit_button = driver.find_element(by = By.XPATH,
-            value = r'//*[@id="ctl00_webPartManager_wp793523384_wp1892398315_btnSubmit1"]')
-        submit_button.click()
-
-        alert = driver.switch_to.alert
-        print(f"Result: {alert.text}")
-        if "2022" not in alert.text:
-            with open(f"fail_log/{result}_FAIL_{i}.png", "wb") as file:
-                file.write(image)
-        alert.accept()
-        driver.delete_all_cookies()
+            alert = driver.switch_to.alert
+            print(f"Result: {alert.text}".encode(encoding="ascii", errors="replace"), flush=True)
+            if "2022" not in alert.text:
+                with open(f"fail_log/{result}_FAIL_{i}.png", "wb") as file:
+                    file.write(image)
+            alert.accept()
+            driver.delete_all_cookies()

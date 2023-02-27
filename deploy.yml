@@ -69,3 +69,4 @@ dependencies:
   - wsproto=1.2.0=pyhd8ed1ab_0
   - xz=5.2.10=h8cc25b3_1
   - zlib=1.2.13=h8cc25b3_0
+prefix: C:\Users\minhn\.conda\envs\mlrun

@@ -8,7 +8,8 @@ from typing import Callable
 
 def get_random_candidates() -> list[str]:
     xpaths = []
-    for i in range(161, 177+1):
+    for i in range(161, 180+1):
+        if i == 179: continue
         xpaths.append(f'//input[@value="{i}"]')
     random.shuffle(xpaths)
     xpaths = xpaths[:9]
@@ -26,7 +27,6 @@ def start(infer: Callable[[bytes], str]) -> None:
 
         for i in range(100):
             time.sleep(5)
-            driver.implicitly_wait(100000)
             for xpath in get_random_candidates():
                 check_box = driver.find_element(by = By.XPATH, value = xpath)
                 check_box.click()

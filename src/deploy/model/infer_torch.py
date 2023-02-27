@@ -1,25 +1,21 @@
 import torch
-from torch import nn
 import numpy as np
 from . import models
-from ..data import data
+from ... import utils
 
 model = models.BasicCNN()
 assert torch.cuda.is_available()
 
 device = torch.device(type="cuda")
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters())
 
-model.load_state_dict(torch.load("CNN.pt"))
+model.load_state_dict(torch.load("blob/CNN.pt"))
 model = model.to(device)
-criterion = criterion.to(device)
 
-def inference(image: bytes):
+def inference(image: bytes) -> str:
     result = []
-    for img, _ in data.split_image(image, "AAAAAA"):
+    for img, _ in utils.split_image(image, "AAAAAA"):
         img = np.expand_dims(img, 0)
         img = torch.tensor(img).to(device, dtype=torch.float)
         idx = int(model(img).argmax(dim=1).cpu())
-        result.append(data.decode_result(idx))
+        result.append(utils.decode_result(idx))
     return "".join(reversed(result))    

@@ -5,8 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.service import Service as EdgeService
-
-from ..model import infer
+from typing import Callable
 
 def get_random_candidates() -> list[str]:
     xpaths = []
@@ -17,7 +16,7 @@ def get_random_candidates() -> list[str]:
     xpaths.append('//input[@value="179"]')
     return xpaths
 
-def start():
+def start(infer: Callable[[bytes], str]):
     driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()))
 
     driver.get("http://tainangtrevietnam.vn/index.html")
@@ -33,7 +32,7 @@ def start():
         captcha_image = driver.find_element(by = By.XPATH,
             value = r'//*[@id="thongtin"]/div/div[3]/div[2]/div/img')
         image = captcha_image.screenshot_as_png
-        result = infer.inference(image)
+        result = infer(image)
 
         text_box = driver.find_element(by = By.XPATH,
             value = r'//input[@class="inputVote"]')

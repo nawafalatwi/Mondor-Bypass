@@ -68,5 +68,5 @@ def train():
         )
         if min_loss > total_loss_tests / 64:
             min_loss = total_loss_tests / 64
-            torch.save(model.state_dict(), "CNN.pt")
+            torch.save(model.state_dict(), "blob/CNN.pt")
             print(f"Saved! Improved to {min_loss}")

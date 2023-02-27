@@ -1,7 +1,6 @@
 import io
-from os import path, listdir
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 def encode_result(c: str):
     if str.isdigit(c):
@@ -28,13 +27,3 @@ def split_image(image_bytes: bytes, result: str) -> list[tuple[np.array, np.int8
             encode_result(c))
         )
     return characters
-
-def read_all_images() -> tuple[list[bytes], list[str]]:
-    generator_path = path.realpath(path.join(__file__, path.pardir, "generator"))
-    image_folder = path.realpath(path.join(generator_path, "tmp"))
-    x, y = [], []
-    for image_path in listdir(image_folder):
-        with open(path.join(image_folder, image_path), "rb") as file:
-            for cx, cy in split_image(file.read(), image_path[:6]):
-                x.append(np.expand_dims(cx, 0)), y.append(cy)
-    return x, y

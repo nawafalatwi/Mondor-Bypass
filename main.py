@@ -1,5 +1,5 @@
 import sys
-
+import time
 match sys.argv[1]:
     case "train":
         from src.build.model import train
@@ -18,6 +18,10 @@ match sys.argv[1]:
         from src.deploy.model.infer_onnx import inference
         from src.deploy.interact import inter
         inter.start(inference)
+
+    case "plot":
+        from src.plot import plot
+        plot.start()
 
     case _:
         print("Wrong argument")

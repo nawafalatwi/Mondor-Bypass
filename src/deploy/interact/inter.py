@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.service import Service as EdgeService
 from typing import Callable
+from multiprocessing import Pool
 
 def get_random_candidates() -> list[str]:
     xpaths = []
@@ -16,7 +17,7 @@ def get_random_candidates() -> list[str]:
     xpaths.append('//input[@value="179"]')
     return xpaths
 
-def start(infer: Callable[[bytes], str]) -> None:
+def start_driver(infer: Callable[[bytes], str]) -> None:
     EdgeOptions = webdriver.EdgeOptions()
     EdgeOptions.add_argument("--headless")
     EdgeOptions.add_argument('log-level=3')
@@ -44,9 +45,14 @@ def start(infer: Callable[[bytes], str]) -> None:
             submit_button.click()
 
             alert = driver.switch_to.alert
-            print(f"Result: {alert.text}".encode(encoding="ascii", errors="replace"), flush=True)
+            print(f"Result: {alert.text}")
             if "2022" not in alert.text:
                 with open(f"fail_log/{result}_FAIL_{i}.png", "wb") as file:
                     file.write(image)
             alert.accept()
             driver.delete_all_cookies()
+
+def start(infer: Callable[[bytes], str]) -> None:
+    pool_size = 8
+    with Pool(processes=pool_size) as pool:
+        pool.map(start_driver, [infer] * pool_size)
